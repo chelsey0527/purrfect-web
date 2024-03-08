@@ -4,7 +4,7 @@ import streamlit as st
 from datetime import datetime, timedelta
 import matplotlib.pyplot as plt
 
-API_BASE_URL = 'http://127.0.0.1:5000'
+API_BASE_URL = 'https://techin510-final.azurewebsites.net'
 
 def fetch_tasks():
     response = requests.get(f"{API_BASE_URL}/tasks")
