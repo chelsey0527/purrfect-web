@@ -25,12 +25,6 @@ def add_task():
     return jsonify({'task_id': task_id}), 201
 
 ## -- DELETE task --
-from flask import Flask, jsonify, request
-from services.database import get_db_conn
-
-app = Flask(__name__)
-
-# DELETE route for removing a task
 @app.route('/tasks/<int:task_id>', methods=['DELETE'])
 def delete_task(task_id):
     conn = get_db_conn()
@@ -41,6 +35,29 @@ def delete_task(task_id):
         if cur.rowcount == 0:
             return jsonify({'message': 'Task not found.'}), 404
         return jsonify({'message': 'Task deleted successfully.'}), 200
+    except Exception as e:
+        conn.rollback()
+        return jsonify({'error': str(e)}), 500
+    finally:
+        cur.close()
+        conn.close()
+
+# -- Update task --
+@app.route('/tasks/<int:task_id>', methods=['POST', 'PUT'])
+def update_task(task_id):
+    data = request.json
+    conn = get_db_conn()
+    cur = conn.cursor()
+    try:
+        cur.execute("""
+            UPDATE tasks 
+            SET status = %s 
+            WHERE task_id = %s
+            """, (data['status'], task_id))
+        if cur.rowcount == 0:
+            return jsonify({'message': 'Task not found.'}), 404
+        conn.commit()
+        return jsonify({'message': 'Task updated successfully.'}), 200
     except Exception as e:
         conn.rollback()
         return jsonify({'error': str(e)}), 500

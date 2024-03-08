@@ -2,13 +2,13 @@ import streamlit as st
 import requests
 import pandas as pd
 from datetime import datetime
+import matplotlib.pyplot as plt
+
+from utils.dashboard import display_dashboard
+
 
 # API Base URL - Update this based on your Flask app's location
 API_BASE_URL = 'http://127.0.0.1:5000'
-
-def display_dashboard():
-    st.title("Dashboard")
-    st.write("Dashboard content goes here...")
 
 def display_search_tasks():
     st.title("Search Tasks")
@@ -42,8 +42,6 @@ def search_tasks(query='', date_range=[], status='All'):
     else:
         st.error("Failed to retrieve tasks.")
 
-
-
 def filter_tasks(tasks, query, date_range, status):
     filtered_tasks = tasks
     if query:
@@ -56,44 +54,46 @@ def filter_tasks(tasks, query, date_range, status):
         filtered_tasks = [task for task in filtered_tasks if task['status'] == status_bool]
     return filtered_tasks
 
+def toggle_task_status(task_id, current_status):
+    new_status = not current_status
+    response = requests.put(f"{API_BASE_URL}/tasks/{task_id}", json={'status': new_status})
+    if response.status_code == 200:
+        st.success("Task status updated successfully.")
+    else:
+        st.error(f"Failed to update task status. Error: {response.text}")
 
 def display_tasks_table(tasks):
-    # Display Table Headers
     st.write("Results")
-    header_cols = st.columns([1.5, 1.5, 3, 2, 3, 1.5])
-    headers = ['Status', 'Task ID', 'Name', 'Category', 'Due Date', 'Actions']
+    header_cols = st.columns([1.5, 1.5, 3, 2, 3, 1.5, 1.5])
+    headers = ['Status', 'Task ID', 'Name', 'Category', 'Due Date', 'Toggle Status', 'Actions']
     for col, header in zip(header_cols, headers):
         col.write(header)
     
-    delete_task_id = None
-
     if tasks:
         for task in tasks:
-            col1, col2, col3, col4, col5, col6 = st.columns([1.5, 1.5, 3, 2, 3, 1.5])
+            col1, col2, col3, col4, col5, col6, col7 = st.columns([1.5, 1.5, 3, 2, 3, 1.5, 1.5])
             with col1:
                 st.write('✅' if task['status'] else '❌')
             with col2:
                 st.write(task['task_id'])
             with col3:
                 st.write(task['name'])
-            # with col4:
-            #     st.write(task['description'])
             with col4:
                 st.write(task['category'])
             with col5:
                 due_date = datetime.strptime(task['due_date'], "%a, %d %b %Y %H:%M:%S GMT")
                 formatted_due_date = due_date.strftime("%a, %d %b %Y")
                 st.write(formatted_due_date)
+           
             with col6:
+                if st.button("✏️", key=f"toggle_{task['task_id']}"):
+                    toggle_task_status(task['task_id'], task['status'])
+                    st.experimental_rerun()
+            with col7:
                 if st.button("🗑️", key=f"delete_{task['task_id']}"):
-                    delete_task_id = task['task_id']
+                    delete_task(task['task_id'])
     else:
         st.info("No tasks found.")
-    
-    if delete_task_id:
-        delete_task(delete_task_id)
-        st.experimental_rerun()
-
 
 def add_task():
     with st.form("add_task_form"):
@@ -128,8 +128,6 @@ def add_task():
             except Exception as e:
                 st.error(f"An error occurred: {e}")
 
-
-
 def delete_task(task_id):
     response = requests.delete(f"{API_BASE_URL}/tasks/{task_id}")
     if response.status_code == 200:
@@ -137,11 +135,10 @@ def delete_task(task_id):
     else:
         st.error(f"Failed to delete task. Status code: {response.status_code}. Error: {response.text}")
 
-
 def main():
     st.sidebar.title("Navigation")
     page = st.sidebar.radio("Go to", ["Dashboard", "🔍 Search Tasks", "➕ Add New Task"])
-
+    
     if page == "Dashboard":
         display_dashboard()
     elif page == "🔍 Search Tasks":
@@ -151,4 +148,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
