@@ -8,7 +8,8 @@ from utils.dashboard import display_dashboard
 
 
 # API Base URL - Update this based on your Flask app's location
-API_BASE_URL = 'https://techin510-final.azurewebsites.net'
+# API_BASE_URL = 'https://techin510-final.azurewebsites.net'
+API_BASE_URL = 'http://127.0.0.1:5000'
 
 def display_search_tasks():
     st.title("Search Tasks")
