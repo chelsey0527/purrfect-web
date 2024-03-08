@@ -77,3 +77,9 @@ def get_tasks():
     conn.close()
     print('Retrieve task: ', tasks)
     return jsonify(tasks)
+
+
+# -- health check --
+@app.route("/health")
+def health():
+    return "OK", 200
