@@ -24,6 +24,31 @@ def add_task():
     print(' ADD task ', task_id)
     return jsonify({'task_id': task_id}), 201
 
+## -- DELETE task --
+from flask import Flask, jsonify, request
+from services.database import get_db_conn
+
+app = Flask(__name__)
+
+# DELETE route for removing a task
+@app.route('/tasks/<int:task_id>', methods=['DELETE'])
+def delete_task(task_id):
+    conn = get_db_conn()
+    cur = conn.cursor()
+    try:
+        cur.execute("DELETE FROM tasks WHERE task_id = %s;", (task_id,))
+        conn.commit()
+        if cur.rowcount == 0:
+            return jsonify({'message': 'Task not found.'}), 404
+        return jsonify({'message': 'Task deleted successfully.'}), 200
+    except Exception as e:
+        conn.rollback()
+        return jsonify({'error': str(e)}), 500
+    finally:
+        cur.close()
+        conn.close()
+
+
 # -- Retrieve task --
 @app.route('/tasks', methods=['GET'])
 def get_tasks():

@@ -133,10 +133,9 @@ def add_task():
 def delete_task(task_id):
     response = requests.delete(f"{API_BASE_URL}/tasks/{task_id}")
     if response.status_code == 200:
-        st.success(f"Task {task_id} deleted successfully.")
+        st.success("Task deleted successfully.")
     else:
-        st.error(f"Failed to delete task {task_id}. Error: {response.text}")
-
+        st.error(f"Failed to delete task. Status code: {response.status_code}. Error: {response.text}")
 
 
 def main():
