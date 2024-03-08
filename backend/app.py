@@ -7,7 +7,7 @@ app = Flask(__name__)
 
 @app.route('/')
 def home():
-    return "Welcome to the Visualized To-Do List Tracker API!"
+    return "Welcome to the Visualized To-Do List Tracker API!!"
 
 # -- ADD task --
 @app.route('/tasks', methods=['POST'])
