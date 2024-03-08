@@ -14,16 +14,13 @@ def fetch_tasks():
         st.error("Failed to retrieve tasks.")
         return pd.DataFrame()
 
-# Assuming tasks data is already fetched and converted into a DataFrame named `df`
 df = fetch_tasks()
-
-# Convert 'due_date' from string to datetime and ensure 'status' is boolean
 df['due_date'] = pd.to_datetime(df['due_date'])
 df['status'] = df['status'].astype(bool)
 
 def plot_daily_task_counts(df):
     if not df.empty:
-        df['due_date'] = pd.to_datetime(df['due_date'])  # Ensure conversion here
+        df['due_date'] = pd.to_datetime(df['due_date'])  
         daily_counts = df.groupby(df['due_date'].dt.date).size()
         plt.figure(figsize=(10, 6))
         daily_counts.plot(kind='bar')

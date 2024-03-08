@@ -1,0 +1,11 @@
+# Frontend
+streamlit
+requests
+matplotlib
+
+# Backend
+Flask==2.0.1
+Werkzeug==2.2.2
+psycopg2-binary
+python-dotenv
+gunicorn
